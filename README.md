@@ -111,3 +111,36 @@ graph TD
     classDef kafkaStyle fill:#ffcc80,stroke:#ef6c00,stroke-width:2px,stroke-dasharray: 5 5;
     classDef dbStyle fill:#ffe0b2,stroke:#e65100,stroke-width:2px;
     classDef aiStyle fill:#e1bee7,stroke:#4a148c,stroke-width:2px;
+
+
+---
+
+## About the Application
+
+**Log Insight** is a lightweight, streaming log-analysis system designed for
+developer and DevOps workflows.
+
+It collects logs from multiple sources (files, services, webhooks, SDKs),
+normalizes them, and sends only *interesting* events for deeper analysis.
+
+### What it does
+
+- 📨 **Ingests logs** from files, HTTP webhooks, and SDKs  
+- 🔎 **Parses and filters** logs using keywords/regex (Error, Panic, Exception, etc.)  
+- ⚡ **Hot path:** aggregates metrics in DuckDB for fast stats  
+- 🧠 **Cold path:** forwards high-risk logs to Kafka for AI-based RCA analysis  
+- 🤖 **AI worker** generates insights and probable root causes  
+- 🗄️ **Stores results** in a database for dashboards and CLI queries  
+- 📊 **Supports dashboards** (Grafana / Web UI) and CLI tools
+
+### Why this architecture?
+
+- decoupled ingestion + processing (scales independently)  
+- batch AI processing to reduce cost  
+- Kafka ensures reliability and replay  
+- DuckDB provides fast local analytics  
+- simple enough to run locally with Docker
+
+---
+
+## Screenshots
