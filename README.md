@@ -111,8 +111,6 @@ graph TD
     classDef kafkaStyle fill:#ffcc80,stroke:#ef6c00,stroke-width:2px,stroke-dasharray: 5 5;
     classDef dbStyle fill:#ffe0b2,stroke:#e65100,stroke-width:2px;
     classDef aiStyle fill:#e1bee7,stroke:#4a148c,stroke-width:2px;
-
-
 ---
 
 ## About the Application
@@ -144,3 +142,5 @@ normalizes them, and sends only *interesting* events for deeper analysis.
 ---
 
 ## Screenshots
+
+
