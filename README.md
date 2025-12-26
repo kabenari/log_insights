@@ -73,24 +73,60 @@ graph TD
     classDef aiStyle fill:#e1bee7,stroke:#4a148c,stroke-width:2px;
 ```
 
-About the Application
+# 🔍 Log Insight (AI-Powered Log Analysis Platform)
 
-Log Insight is a lightweight, streaming log-analysis platform.
-It ingests logs from apps, services, and webhooks, normalizes them, and routes only
-high-value events for deeper AI-assisted analysis — while still capturing fast metrics locally.
+A distributed, event-driven log analysis platform that ingests logs from various sources (Files, Datadog, HTTP), processes them through an AI Worker (LLM) to identify root causes, and displays real-time insights in a TUI dashboard.
 
-Highlights
+## 🏗 Architecture So Far
+The system acts as a pipeline with three distinct components:
 
-📨 Ingest from files, HTTP, and SDKs
+1.  **Ingestor Service (Go)**
+    * Listens for logs via HTTP (Datadog Webhooks) or internal generators.
+    * Normalizes data into a standard `LogEntry` format.
+    * Pushes critical/error logs to a **Kafka** topic (`logs.to.analyze`).
+    * *Status:* ✅ Working (Handles Datadog Webhooks & Manual Curls).
 
-🔎 Keyword/regex filtering for important events
+2.  **AI Worker (Go)**
+    * Consumes messages from Kafka.
+    * (Currently) Mocks AI analysis or connects to OpenAI.
+    * Saves analyzed insights to a local storage file (`insights.jsonl`).
+    * *Status:* ✅ Working (Consumes & Saves).
 
-⚡ Fast metrics path (DuckDB)
+3.  **CLI Dashboard (Bubbletea TUI)**
+    * Reads from storage (`insights.jsonl`).
+    * Displays a navigable, interactive list of error logs and their AI-generated root causes.
+    * *Status:* ✅ Working (Basic view).
 
-🧠 AI analysis path (Kafka → Worker → RCA)
+---
 
-🗄️ Insights stored for dashboards & CLI
+## 🎯 End Goal
+To build an "Agentic" Observability Platform that doesn't just show logs, but **understands** them.
+* **True Agentic Behavior:** RPC agents sitting on user servers pushing logs directly.
+* **Real Intelligence:** OpenAI/LLM analyzing complex stack traces.
+* **Production Storage:** Replacing flat files with high-performance DBs (DuckDB/ClickHouse).
 
-📊 Easy integration with Grafana / Web UI
+---
 
-Designed to be simple to run, cheap, and scalable.
+## ✅ To-Do List (Next Steps)
+
+### Phase 1: Robustness (Immediate)
+- [ ] **Fix Datadog Payload:** Ensure the custom payload JSON is "safe" from newlines/quotes to prevent 400 errors.
+- [ ] **Real AI Connection:** Switch Worker from "Mock Analysis" to real OpenAI API calls.
+- [ ] **Live TUI:** Add polling to the CLI so new alerts appear without restarting the app.
+
+### Phase 2: Agentic Expansion
+- [ ] **gRPC Server:** Add a gRPC handler to the Ingestor for high-performance internal logging.
+- [ ] **SDK:** Build a tiny Go SDK that developers can import to send logs to us automatically.
+
+### Phase 3: Infrastructure
+- [ ] **Database:** Migrate from `insights.jsonl` to SQLite or DuckDB.
+- [ ] **Dockerize:** Create a full `docker-compose` for the Ingestor, Worker, and DB.
+
+---
+
+## 🚀 Quick Start
+1. **Start Infrastructure:** `docker-compose up` (Kafka/Zookeeper)
+2. **Start Ingestor:** `go run cmd/ingestor/main.go`
+3. **Start Worker:** `go run cmd/worker/main.go`
+4. **Start Tunnel:** `ngrok http 8080` (for Datadog)
+5. **View Dashboard:** `go run cmd/cli/main.go`
