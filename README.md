@@ -96,6 +96,7 @@ The system acts as a pipeline with three distinct components:
     * Reads from storage (`insights.jsonl`).
     * Displays a navigable, interactive list of error logs and their AI-generated root causes.
     * *Status:* ✅ Working (Basic view).
+    * Added polling to the CLI so new alerts appear without restarting the app.
 
 ---
 
@@ -111,9 +112,7 @@ To build an "Agentic" Observability Platform that doesn't just show logs, but **
 ## ✅ To-Do List (Next Steps)
 
 ### Phase 1: Robustness (Immediate)
-- [ ] **Fix Datadog Payload:** Ensure the custom payload JSON is "safe" from newlines/quotes to prevent 400 errors.
 - [ ] **Real AI Connection:** Switch Worker from "Mock Analysis" to real OpenAI API calls.
-- [ ] **Live TUI:** Add polling to the CLI so new alerts appear without restarting the app.
 
 ### Phase 2: Agentic Expansion
 - [ ] **gRPC Server:** Add a gRPC handler to the Ingestor for high-performance internal logging.

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/kabenari/log-insight/pkg/models"
@@ -27,8 +28,19 @@ func (m model) Init() tea.Cmd {
 	return nil
 }
 
+func tickCmd() tea.Cmd {
+	return tea.Tick(time.Second*2, func(t time.Time) tea.Msg {
+		return tickMsg(t)
+	})
+}
+
+type tickMsg time.Time
+
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
+	case tickMsg:
+		m.insights = loadInsights()
+		return m, tickCmd()
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "q", "ctrl+c":
