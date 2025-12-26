@@ -112,7 +112,7 @@ graph TD
     classDef dbStyle fill:#ffe0b2,stroke:#e65100,stroke-width:2px;
     classDef aiStyle fill:#e1bee7,stroke:#4a148c,stroke-width:2px;
 ---
-
+```
 ## About the Application
 
 **Log Insight** is a lightweight, streaming log-analysis system designed for
