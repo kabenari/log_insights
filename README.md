@@ -103,6 +103,7 @@ The system acts as a pipeline with three distinct components:
 To build an "Agentic" Observability Platform that doesn't just show logs, but **understands** them.
 * **True Agentic Behavior:** RPC agents sitting on user servers pushing logs directly.
 * **Real Intelligence:** OpenAI/LLM analyzing complex stack traces.
+* **Custom workflows and recreating the issues:** here once the domain system receveis an error devs can setup custom workflows that will run to recover the issue , recreting and reassuring the issue and other triggers and stuff people worked on that part of the system agets triggered sand stuff like maybe n8n flows.
 * **Production Storage:** Replacing flat files with high-performance DBs (DuckDB/ClickHouse).
 
 ---
