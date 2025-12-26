@@ -73,3 +73,24 @@ graph TD
     classDef aiStyle fill:#e1bee7,stroke:#4a148c,stroke-width:2px;
 ```
 
+About the Application
+
+Log Insight is a lightweight, streaming log-analysis platform.
+It ingests logs from apps, services, and webhooks, normalizes them, and routes only
+high-value events for deeper AI-assisted analysis — while still capturing fast metrics locally.
+
+Highlights
+
+📨 Ingest from files, HTTP, and SDKs
+
+🔎 Keyword/regex filtering for important events
+
+⚡ Fast metrics path (DuckDB)
+
+🧠 AI analysis path (Kafka → Worker → RCA)
+
+🗄️ Insights stored for dashboards & CLI
+
+📊 Easy integration with Grafana / Web UI
+
+Designed to be simple to run, cheap, and scalable.
