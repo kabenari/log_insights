@@ -2,7 +2,7 @@ package models
 
 import "time"
 
-//raw data co,ing in
+// raw data co,ing in
 type LogEntry struct {
 	Timestamp time.Time `json:"timestamp"`
 	Level     string    `json:"Level`
@@ -11,7 +11,7 @@ type LogEntry struct {
 	Status    int       `json:"status"`
 }
 
-//the data processort the worker will process
+// the data processort the worker will process
 type AIResult struct {
 	OriginalLog LogEntry `json:"original_log"`
 	Analysis    string   `json:"analysis"`

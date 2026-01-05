@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package api;
+
+option go_package = "github.com/kabenari/log-insight/pkg/api";
+
+message LogRequest{
+    string service_name = 1;
+    string level = 2;
+    string message = 3;
+    string timestamp = 4;
+    int32 status = 5;
+}
+
+
+message LogResponse{
+    bool success = 1;
+    string ack_id = 2;
+}
+
+service LogIngestor{
+    rpc pushLog (LogRequest) returns (LogResponse); 
+}

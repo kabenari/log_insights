@@ -1,21 +1,44 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
 	"math/rand"
+	"net"
 	"net/http"
 	"time"
 
 	"github.com/IBM/sarama"
+	"github.com/google/uuid"
+	pb "github.com/kabenari/log-insight/pkg/api"
 	"github.com/kabenari/log-insight/pkg/models"
+	"google.golang.org/grpc"
 )
 
 const (
 	KafkaTopic  = "logs.to.analyze"
 	KafkaBroker = "localhost:9092"
+	GRPCPort    = ":50051"
 )
+
+type server struct {
+	pb.UnimplementedLogIngestorServer
+	producer sarama.SyncProducer
+}
+
+func (s *server) PushLog(ctx context.Context, req *pb.LogRequest) (*pb.LogResponse, error) {
+	entry := models.LogEntry{
+		Timestamp: time.Now(),
+		Level:     req.Level,
+		Message:   req.Message,
+		Service:   req.ServiceName,
+		Status:    int(req.Status),
+	}
+	processLog(s.producer, entry)
+	return &pb.LogResponse{Success: true, AckId: uuid.New().String()}, nil
+}
 
 func main() {
 	producer, err := setupProducer()
@@ -25,16 +48,29 @@ func main() {
 
 	defer producer.Close()
 
+	go func() {
+		lis, err := net.Listen("tcp", GRPCPort)
+		if err != nil {
+			log.Fatalf("failed to listen on grpc port: %v")
+		}
+
+		s := grpc.NewServer()
+		pb.RegisterLogIngestorServer(s, &server{producer: producer})
+		if err := s.Serve(lis); err != nil {
+			log.Fatalf("failed to serve grpc: %v")
+		}
+	}()
+
 	go startLogGenerator(producer)
 
 	http.HandleFunc("/ingest", func(w http.ResponseWriter, r *http.Request) {
 		var entry models.LogEntry
 		if err := json.NewDecoder(r.Body).Decode(&entry); err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
 		}
-
 		processLog(producer, entry)
-		w.WriteHeader(http.StatusOK)
+		w.WriteHeader(http.StatusAccepted)
 	})
 
 	http.HandleFunc("/webhook/datadog", func(w http.ResponseWriter, r *http.Request) {
@@ -45,23 +81,23 @@ func main() {
 		}
 
 		if err := json.NewDecoder(r.Body).Decode(&ddPayload); err != nil {
-			http.Error(w, "invalid datadog json", http.StatusBadRequest)
+			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
 
 		entry := models.LogEntry{
 			Timestamp: time.Unix(ddPayload.Date/1000, 0),
 			Level:     "ERROR",
+			Message:   ddPayload.Body,
 			Service:   "External-Datadog",
-			Message:   fmt.Sprintf("%s - %s", ddPayload.Title, ddPayload.Body),
 			Status:    500,
 		}
 
-		fmt.Printf("[Webhook] datadig has hit us boom: ", ddPayload.Title)
+		fmt.Printf("Received Datadog alert: %s\n", ddPayload.Title)
 		processLog(producer, entry)
 	})
 
-	fmt.Println("Ingestor running on :8080...")
+	fmt.Println("ingestor service started on port 8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
 
