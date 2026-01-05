@@ -85,6 +85,7 @@ The system acts as a pipeline with three distinct components:
     * Normalizes data into a standard `LogEntry` format.
     * Pushes critical/error logs to a **Kafka** topic (`logs.to.analyze`).
     * *Status:* ✅ Working (Handles Datadog Webhooks & Manual Curls).
+    - [ ] **gRPC Server:** Add a gRPC handler to the Ingestor for high-performance internal logging.
 
 2.  **AI Worker (Go)**
     * Consumes messages from Kafka.
@@ -115,7 +116,6 @@ To build an "Agentic" Observability Platform that doesn't just show logs, but **
 - [ ] **Real AI Connection:** Switch Worker from "Mock Analysis" to real OpenAI API calls.
 
 ### Phase 2: Agentic Expansion
-- [ ] **gRPC Server:** Add a gRPC handler to the Ingestor for high-performance internal logging.
 - [ ] **SDK:** Build a tiny Go SDK that developers can import to send logs to us automatically.
 
 ### Phase 3: Infrastructure
