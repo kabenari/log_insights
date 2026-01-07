@@ -1,14 +1,13 @@
 package main
 
 import (
-	"bufio"
-	"encoding/json"
 	"fmt"
 	"os"
 	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/kabenari/log-insight/pkg/models"
+	"github.com/kabenari/log-insight/pkg/storage"
 )
 
 type model struct {
@@ -18,8 +17,9 @@ type model struct {
 }
 
 func initialModel() model {
+	storage.InitDB()
 	return model{
-		insights: loadInsights(),
+		insights: storage.GetInsights(),
 		selected: -1,
 	}
 }
@@ -39,7 +39,7 @@ type tickMsg time.Time
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tickMsg:
-		m.insights = loadInsights()
+		m.insights = storage.GetInsights()
 		return m, tickCmd()
 	case tea.KeyMsg:
 		switch msg.String() {
@@ -97,22 +97,4 @@ func main() {
 		fmt.Printf("Error: %v", err)
 		os.Exit(1)
 	}
-}
-
-func loadInsights() []models.AIResult {
-	file, err := os.Open("insights.jsonl")
-	if err != nil {
-		return []models.AIResult{}
-	}
-	defer file.Close()
-
-	var results []models.AIResult
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		var res models.AIResult
-		if err := json.Unmarshal(scanner.Bytes(), &res); err == nil {
-			results = append([]models.AIResult{res}, results...)
-		}
-	}
-	return results
 }

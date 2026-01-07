@@ -10,6 +10,7 @@ import (
 
 	"github.com/IBM/sarama"
 	"github.com/kabenari/log-insight/pkg/models"
+	"github.com/kabenari/log-insight/pkg/storage"
 )
 
 const (
@@ -18,6 +19,9 @@ const (
 )
 
 func main() {
+
+	storage.InitDB()
+
 	fmt.Println("ai worker working")
 
 	consumer, err := sarama.NewConsumer([]string{KafkaBroker}, nil)
@@ -72,7 +76,7 @@ func analyzeLog(entry models.LogEntry) {
 		Fixed:       false,
 	}
 
-	if err := saveInsight(result); err != nil {
+	if err := storage.SaveInsight(result); err != nil {
 		log.Printf("error saving to file :", err)
 	} else {
 		fmt.Println("saved in file")
@@ -80,24 +84,4 @@ func analyzeLog(entry models.LogEntry) {
 
 	fmt.Printf(">>> AI INSIGHT: %s\n", result.Analysis)
 	fmt.Println("------------------------------------------------")
-}
-
-func saveInsight(result models.AIResult) error {
-	f, err := os.OpenFile("insights.json", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	if err != nil {
-		return err
-	}
-
-	defer f.Close()
-
-	data, err := json.Marshal(result)
-	if err != nil {
-		return err
-	}
-
-	if _, err := f.Write(append(data, '\n')); err != nil {
-		return err
-	}
-
-	return nil
 }
