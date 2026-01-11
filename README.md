@@ -130,3 +130,51 @@ To build an "Agentic" Observability Platform that doesn't just show logs, but **
 3. **Start Worker:** `go run cmd/worker/main.go`
 4. **Start Tunnel:** `ngrok http 8080` (for Datadog)
 5. **View Dashboard:** `go run cmd/cli/main.go`
+
+Agentic Debugger
+
+```mermaid
+graph TD
+    subgraph UserSpace ["User Environment"]
+        %% FIXED: Quotes around Node Label
+        Codebase["User Codebase<br/>(Local Dir or GitHub)"]
+        App[User Application]
+    end
+
+    subgraph DataPipeline ["Log Pipeline"]
+        Ingestor[Ingestor Service]
+        Kafka[Kafka: logs.to.analyze]
+    end
+
+    subgraph AgenticCore ["Agentic AI Core"]
+        Indexer[Code Indexer CLI]
+        VectorDB[(Qdrant: Vector Store)]
+        Worker[AI Worker]
+        %% FIXED: Quotes around Node Label
+        OpenAI["OpenAI API<br/>(Embeddings & Chat)"]
+    end
+
+    subgraph Storage ["Persistence"]
+        SQLite[(SQLite: Insights)]
+    end
+
+    %% Flow
+    Codebase -->|1. Scan & Chunk| Indexer
+    Indexer -->|2. Generate Embeddings| OpenAI
+    OpenAI -->|3. Vectors| Indexer
+    Indexer -->|4. Store Vectors| VectorDB
+
+    App -->|5. Push Error Log| Ingestor
+    Ingestor --> Kafka
+    Kafka -->|6. Consume Log| Worker
+    
+    %% FIXED: Added quotes inside the pipes |"..."|
+    Worker -->|"7. Similarity Search (Error Msg)"| VectorDB
+    VectorDB -->|8. Return Relevant Code Snippets| Worker
+    
+    %% FIXED: Added quotes inside the pipes |"..."|
+    Worker -->|"9. Send (Log + Code Snippets)"| OpenAI
+    OpenAI -->|10. Return Fix Suggestion| Worker
+    
+    Worker -->|11. Save Insight| SQLite
+```
