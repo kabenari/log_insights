@@ -178,3 +178,56 @@ graph TD
     
     Worker -->|11. Save Insight| SQLite
 ```
+
+
+
+Flow for creating embeddings [High]
+
+```mermaid
+flowchart TD
+    subgraph Client_Side [Client Side / Local Machine]
+        direction TB
+        Step1[<b>Step 1: Code Chunking</b><br/>Split code into semantic chunks]
+        Step2[<b>Step 2: Merkle Tree Construction</b><br/>Compute hash tree of all valid files]
+        Step5[<b>Step 5: Periodic Updates</b><br/>Check for changes every 10 mins<br/>using Merkle tree]
+        
+        Step1 --> Step2
+        Step2 -.-> Step5
+    end
+
+    subgraph Server_Side [Server Side Processing]
+        direction TB
+        Step3[<b>Step 3: Embedding Generation</b><br/>Create vector representations]
+        Step4[<b>Step 4: Storage and Indexing</b><br/>Store in vector database]
+        DB[(<b>Turbopuffer</b><br/>Vector Database)]
+        
+        Step3 --> Step4
+        Step4 --> DB
+    end
+
+    subgraph Usage [RAG Usage]
+        UserQuery([User: @Codebase or CMD+K])
+        RAG[<b>RAG Retrieval</b><br/>Retrieve relevant chunks for context]
+    end
+
+    %% Connections across subgraphs
+    Step2 -- "Sync (Initial)" --> Step3
+    Step5 -- "Sync (Only changed files)" --> Step3
+    
+    %% Usage flow
+    UserQuery --> RAG
+    DB -.-> RAG
+    
+    %% Styling
+    classDef blue fill:#e1f5fe,stroke:#01579b,stroke-width:2px;
+    classDef green fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
+    classDef orange fill:#fff3e0,stroke:#ef6c00,stroke-width:2px;
+    classDef purple fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px;
+    classDef db fill:#0277bd,stroke:#01579b,stroke-width:2px,color:white;
+    
+    class Step1,Step4 blue;
+    class Step2 green;
+    class Step3 orange;
+    class Step5 purple;
+    class DB db;
+```
